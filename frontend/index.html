@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EVAC-NET // DISASTER RESPONSE SYSTEM</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <!-- MISSION BRIEFING OVERLAY -->
+    <div id="mission-briefing"
+        style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:10000;display:flex;align-items:center;justify-content:center;">
+        <div
+            style="max-width:800px;padding:40px;background:white;border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,0.2);">
+            <h1 style="color:#2c3e50;font-size:2rem;margin:0 0 20px 0;text-align:center;">🚨 DISASTER EVACUATION
+                SYSTEM</h1>
+            <h2 style="color:#34495e;font-size:1.2rem;margin:0 0 30px 0;text-align:center;">Emergency Response Command
+                Center</h2>
+
+            <div style="color:#333;font-size:1rem;line-height:1.6;margin-bottom:30px;">
+                <p><strong>PURPOSE:</strong> Help emergency managers save lives by:</p>
+                <ul style="margin:10px 0 20px 30px;">
+                    <li>✓ Visualizing disaster spread in real-time</li>
+                    <li>✓ Finding optimal evacuation routes to safety</li>
+                    <li>✓ Tracking population movement & shelter capacity</li>
+                    <li>✓ Predicting disaster intensity using AI/IoT sensors</li>
+                    <li>✓ Minimizing casualties through smart routing</li>
+                </ul>
+
+                <p><strong>YOUR MISSION:</strong></p>
+                <ol style="margin:10px 0 20px 30px;">
+                    <li>Select disaster type (Earthquake/Flood/Fire)</li>
+                    <li>Click TRIGGER → Click epicenter on map</li>
+                    <li>Watch AI simulate evacuation & disaster spread</li>
+                    <li>Review results → Save maximum lives!</li>
+                </ol>
+
+                <p style="color:#c0392b;"><strong>⚠ GOAL:</strong> Achieve 90%+ evacuation efficiency</p>
+            </div>
+
+            <button onclick="document.getElementById('mission-briefing').style.display='none'"
+                style="width:100%;padding:15px;background:#27ae60;border:none;color:white;font-size:1.2rem;font-weight:bold;cursor:pointer;border-radius:6px;">
+                🚀 START MISSION
+            </button>
+        </div>
+    </div>
+
+    <div class="hud-container">
+        <header class="hud-panel top-bar">
+            <div class="logo-area">
+                <div class="hazard-icon">⚠️</div>
+                <h1>DISASTER RESPONSE <span class="version">COMMAND CENTER v2.0</span></h1>
+            </div>
+            <div class="system-status">
+                <div class="stat-box"><span class="label">AI Status</span>
+                    <div class="bar-graph">
+                        <div class="fill" style="width:95%"></div>
+                    </div>
+                </div>
+                <div class="stat-box"><span class="label">IoT Network</span>
+                    <div class="bar-graph">
+                        <div class="fill" style="width:88%"></div>
+                    </div>
+                </div>
+                <div class="stat-box warning"><span class="label">Alert Level</span><span class="value blink"
+                        id="system-alert" style="font-size:0.9rem; color: #f39c12;">STANDBY</span></div>
+            </div>
+        </header>
+
+        <aside class="hud-panel left-panel">
+            <h2>Controls</h2>
+
+            <div class="control-group">
+                <label>DISASTER TYPE</label>
+                <select id="disaster-type">
+                    <option value="none">-- SELECT --</option>
+                    <option value="earthquake">EARTHQUAKE</option>
+                    <option value="flood">FLOOD</option>
+                    <option value="fire">WILDFIRE</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label>YOUR LOCATION</label>
+                <select id="user-location">
+                    <option value="">-- SELECT NODE --</option>
+                </select>
+            </div>
+
+            <button id="find-safest-route-btn">
+                🛡️ FIND SAFEST ROUTE
+            </button>
+
+            <button id="trigger-disaster-btn">
+                ⚠️ TRIGGER DISASTER
+            </button>
+
+            <div style="margin-bottom:10px;">
+                <label style="cursor:pointer;display:flex;align-items:center;font-size:0.8rem;">
+                    <input type="checkbox" id="sound-toggle" checked style="margin-right:8px;"> Enable Sound FX
+                </label>
+            </div>
+
+            <div id="route-info-panel" class="route-details" style="display:none;">
+                <h3 style="font-size:0.9rem;color:#2c3e50;margin-bottom:10px;border-bottom:1px solid #ddd;padding-bottom:5px;">Route Instructions</h3>
+                <div id="route-text" style="font-size:0.85rem;color:#555;margin-bottom:10px;"></div>
+                
+                <div class="eta-box">
+                    <div class="eta-item">
+                        <strong>🚶 Walk</strong>
+                        <span id="eta-walk">-- min</span>
+                    </div>
+                    <div class="eta-item">
+                        <strong>🚲 Bike</strong>
+                        <span id="eta-bike">-- min</span>
+                    </div>
+                    <div class="eta-item">
+                        <strong>🚗 Car</strong>
+                        <span id="eta-car">-- min</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="disaster-timer"
+                style="display:none;margin-bottom:15px;padding:10px;background:#fdecea;border:1px solid #e74c3c;text-align:center;font-size:1.2rem;color:#c0392b;font-weight:bold;border-radius:4px;">
+            </div>
+
+            <div class="log-output">
+                <h3 style="margin:0 0 5px 0;font-size:0.75rem;color:#7f8c8d;text-transform:uppercase;">System Log</h3>
+                <div id="sys-log"></div>
+            </div>
+        </aside>
+
+        <aside class="hud-panel right-panel">
+            <h2>Live Metrics</h2>
+
+            <div style="background:#f8f9fa;padding:15px;margin-bottom:15px;border:1px solid #ddd;border-radius:4px;">
+                <h3 style="font-size:0.8rem;color:#7f8c8d;margin:0 0 10px 0;text-transform:uppercase;">Evacuation Efficiency</h3>
+                <div id="efficiency-meter">
+                    <div id="efficiency-bar" style="width:0%;"></div>
+                    <span id="efficiency-text">0%</span>
+                </div>
+            </div>
+
+            <div class="data-row"><span class="label" style="color:#7f8c8d;">EVACUATED</span><span class="value" id="evacuated-count"
+                    style="color:#27ae60;">0</span></div>
+            <div class="data-row"><span class="label" style="color:#7f8c8d;">IN TRANSIT</span><span class="value" id="transit-count"
+                    style="color:#f39c12;">0</span></div>
+            <div class="data-row"><span class="label" style="color:#7f8c8d;">CASUALTIES</span><span class="value" id="casualty-count"
+                    style="color:#c0392b;">0</span></div>
+            <div class="data-row"><span class="label" style="color:#7f8c8d;">IoT ALERTS</span><span class="value" id="iot-alerts">0</span>
+            </div>
+            <div class="data-row"><span class="label" style="color:#7f8c8d;">INTENSITY</span><span class="value"
+                    id="intensity-level">0%</span></div>
+
+            <div style="margin-top:20px;padding:15px;background:#fff;border:1px solid #ddd;border-radius:4px;">
+                <h3 style="font-size:0.9rem;color:#2c3e50;margin:0 0 10px 0;">Shelter Status</h3>
+                <div id="shelter-status"></div>
+            </div>
+
+            <div id="recommendations"
+                style="display:none;margin-top:15px;padding:15px;background:#e8f8f5;border:1px solid #2ecc71;border-radius:4px;">
+                <h3 style="font-size:0.9rem;color:#27ae60;margin:0 0 5px 0;">AI Recommendation</h3>
+                <div id="recommendation-text" style="color:#2c3e50;font-size:0.85rem;"></div>
+            </div>
+        </aside>
+
+        <footer class="hud-panel bottom-bar">
+            <div class="ticker"><span id="ticker-message">System Ready... Waiting for input...</span></div>
+        </footer>
+    </div>
+
+    <canvas id="city-map"></canvas>
+    <script src="js/app.js"></script>
+</body>
+
+</html>
