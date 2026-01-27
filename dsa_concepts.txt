@@ -1,0 +1,36 @@
+ANTIGRAVITY ENGINE // DSA CONCEPTS & OPTIMIZATIONS
+
+1. TRIE (PREFIX TREE)
+   - Application: Search bar autocomplete and instant node lookup.
+   - Complexity: O(L) where L is word length.
+   - Benefit: Enables sub-millisecond search results even with thousands of nodes.
+
+2. PRIORITY QUEUE (MIN-HEAP)
+   - Application: Optimized Dijkstra's Algorithm for safest pathfinding.
+   - Complexity: O(E log V)
+   - Benefit: efficient extraction of the minimum distance node, critical for real-time 60FPS path calculation.
+
+3. QUADTREE
+   - Application: Spatial partitioning for mouse hover and interaction detection.
+   - Complexity: O(log N) for search.
+   - Benefit: Prevents checking every single node on mousemove; only checks nodes in the relevant 2D sector.
+
+4. CIRCULAR QUEUE (RING BUFFER)
+   - Application: System log management.
+   - Complexity: O(1) for enqueue/dequeue.
+   - Benefit: Fixed memory usage (no array shifting overhead), ensuring logs don't consume infinite memory over time.
+
+5. MULTI-SOURCE DIJKSTRA
+   - Application: Simultaneous evacuation simulation from all shelters.
+   - Complexity: O(E log V)
+   - Benefit: Calculates the "pull" of all safe zones at once, allowing thousands of agents to find their nearest exit instantly.
+
+6. ADJACENCY LIST
+   - Application: Graph representation of the Islamabad node network.
+   - Complexity: O(1) for neighbor access.
+   - Benefit: Memory-efficient storage of sparse city connections compared to an adjacency matrix.
+
+7. HASH SET / MAP
+   - Application: Tracking blocked nodes and ID-based lookups.
+   - Complexity: O(1) average case.
+   - Benefit: Instant checks for "is this node blocked?" during the disaster spread loop.

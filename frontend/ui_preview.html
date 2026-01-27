@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>EVAC-NET // DESIGN EXPLORER</title>
+    <style>
+        :root {
+            --bg: #05080a;
+            --accent: #00ffff;
+            --panel: rgba(10, 20, 30, 0.7);
+            --border: rgba(0, 255, 255, 0.3);
+            --font: 'Share Tech Mono', monospace;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--accent);
+            font-family: var(--font);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* NAVIGATION */
+        .design-selector {
+            padding: 15px;
+            display: flex;
+            gap: 15px;
+            background: rgba(0, 0, 0, 0.8);
+            border-bottom: 2px solid var(--border);
+            z-index: 100;
+        }
+
+        .design-btn {
+            padding: 8px 15px;
+            border: 1px solid var(--accent);
+            background: transparent;
+            color: var(--accent);
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.8rem;
+        }
+
+        .design-btn:hover,
+        .design-btn.active {
+            background: var(--accent);
+            color: #000;
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        /* LAYOUT CORE */
+        .viewport {
+            flex: 1;
+            position: relative;
+            padding: 20px;
+            display: grid;
+            gap: 20px;
+            transition: all 0.5s ease-in-out;
+        }
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(5px);
+            padding: 15px;
+            position: relative;
+        }
+
+        .map-area {
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle, rgba(0, 255, 255, 0.05), transparent);
+        }
+
+        /* 1: MODULAR GRID (Legacy-ish but cleaner) */
+        .layout-modular {
+            grid-template-columns: 320px 1fr 280px;
+            grid-template-rows: 80px 1fr 60px;
+        }
+
+        .layout-modular .header {
+            grid-column: 1 / 4;
+        }
+
+        .layout-modular .footer {
+            grid-column: 1 / 4;
+        }
+
+        /* 2: ASYMMETRIC COMMAND (Heavy Stats on one side) */
+        .layout-asymmetric {
+            grid-template-columns: 1fr 380px;
+            grid-template-rows: 100px 1fr 1fr;
+        }
+
+        .layout-asymmetric .header {
+            grid-column: 1 / 2;
+            grid-row: 1;
+        }
+
+        .layout-asymmetric .map-area {
+            grid-column: 1;
+            grid-row: 2 / 4;
+        }
+
+        .layout-asymmetric .stats {
+            grid-column: 2;
+            grid-row: 1 / 3;
+        }
+
+        .layout-asymmetric .log {
+            grid-column: 2;
+            grid-row: 3;
+        }
+
+        .layout-asymmetric .footer {
+            display: none;
+        }
+
+        /* 3: FLOATING HUD (Minimalist Overlays) */
+        .layout-floating {
+            display: block;
+        }
+
+        .layout-floating .map-area {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .layout-floating .floating-widget {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--accent);
+            z-index: 10;
+            width: 250px;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.1);
+        }
+
+        .layout-floating .w-1 {
+            top: 40px;
+            left: 40px;
+        }
+
+        .layout-floating .w-2 {
+            bottom: 40px;
+            left: 40px;
+        }
+
+        .layout-floating .w-3 {
+            top: 40px;
+            right: 40px;
+        }
+
+        .layout-floating .w-4 {
+            bottom: 40px;
+            right: 40px;
+        }
+
+        /* 4: RADIAL FOCUS (Central map, curved panels) */
+        .layout-radial {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .layout-radial .map-area {
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            border: 4px solid var(--accent);
+            box-shadow: 0 0 50px rgba(0, 255, 255, 0.2);
+        }
+
+        .layout-radial .panel {
+            position: absolute;
+            width: 200px;
+        }
+
+        .layout-radial .p-n {
+            top: 10%;
+        }
+
+        .layout-radial .p-s {
+            bottom: 10%;
+        }
+
+        .layout-radial .p-e {
+            right: 5%;
+            top: 45%;
+        }
+
+        .layout-radial .p-w {
+            left: 5%;
+            top: 45%;
+        }
+
+        /* ELEMENTS */
+        .title {
+            font-size: 1.5rem;
+            letter-spacing: 5px;
+            font-weight: bold;
+        }
+
+        .stat-val {
+            font-size: 2rem;
+            color: #fff;
+            text-shadow: 0 0 10px var(--accent);
+        }
+
+        .label {
+            font-size: 0.7rem;
+            opacity: 0.6;
+            text-transform: uppercase;
+        }
+
+        .radar {
+            width: 100px;
+            height: 100px;
+            border: 1px solid var(--accent);
+            border-radius: 50%;
+            margin: 10px auto;
+            position: relative;
+        }
+
+        .radar-sweep {
+            position: absolute;
+            width: 50%;
+            height: 1px;
+            background: var(--accent);
+            top: 50%;
+            left: 50%;
+            transform-origin: left center;
+            animation: rotate 2s linear infinite;
+        }
+
+        @keyframes rotate {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body class="layout-modular">
+
+    <div class="design-selector">
+        <strong style="margin-right:10px; align-self:center;">CHOOSE DESIGN:</strong>
+        <button class="design-btn active" onclick="setLayout('modular', this)">01: MODULAR GRID</button>
+        <button class="design-btn" onclick="setLayout('asymmetric', this)">02: TACTICAL SIDEBAR</button>
+        <button class="design-btn" onclick="setLayout('floating', this)">03: MINIMALIST HUD</button>
+        <button class="design-btn" onclick="setLayout('radial', this)">04: ORBITAL HUB</button>
+    </div>
+
+    <div id="vp" class="viewport layout-modular">
+
+        <!-- HEADER -->
+        <div class="panel header floating-widget w-1 p-n">
+            <div class="title">EVAC-NET // COMMAND</div>
+            <div class="label">LIVE SAT-LINK ACTIVE</div>
+        </div>
+
+        <!-- MAP PREVIEW -->
+        <div class="map-area">
+            <div style="text-align:center">
+                <div style="font-size:0.8rem; margin-bottom:10px">// 3D MAP ENGINE //</div>
+                <div style="width:150px; height:1px; background:var(--accent); margin:0 auto"></div>
+                <h2>ISLAMABAD_METRO</h2>
+            </div>
+        </div>
+
+        <!-- STATS / RIGHT PANEL -->
+        <div class="panel stats floating-widget w-3 p-e">
+            <div class="label">Population Saved</div>
+            <div class="stat-val">842,019</div>
+            <div style="height:4px; width:100%; background:rgba(0,255,255,0.2); margin:10px 0">
+                <div style="height:100%; width:75%; background:var(--accent)"></div>
+            </div>
+            <div class="label">Shelter Load</div>
+            <div class="stat-val">42%</div>
+            <div class="radar">
+                <div class="radar-sweep"></div>
+            </div>
+        </div>
+
+        <!-- LOG / LEFT PANEL -->
+        <div class="panel log floating-widget w-2 p-w">
+            <div class="label">System_Feed</div>
+            <div style="font-size:0.7rem; opacity:0.8; margin-top:5px">
+                > Epicenter located: F6_SECTOR<br>
+                > Alert: Flood risk at 85%<br>
+                > Rerouting agents to F9_SHELTER<br>
+                > IoT_Ping: Sensor_74_Normal
+            </div>
+        </div>
+
+        <!-- FOOTER / EXTRA PANEL -->
+        <div class="panel footer floating-widget w-4 p-s">
+            <div style="display:flex; justify-content:space-between; width:100%">
+                <span>SIGNAL: STABLE</span>
+                <span>UPLINK: ACTIVE</span>
+                <span>TIME: 2026-01-04_1654</span>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function setLayout(l, btn) {
+            const vp = document.getElementById('vp');
+            vp.className = 'viewport layout-' + l;
+
+            document.querySelectorAll('.design-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+    </script>
+</body>
+
+</html>
